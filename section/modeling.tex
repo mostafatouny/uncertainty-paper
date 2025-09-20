@@ -2,7 +2,7 @@
 
 \textcolor{teal}{\textbf{math notation within a real-life context.}}
 
-\textcolor{teal}{\textbf{graph.}} A vehicle's possible paths may be thought of by a set of discrete waypoints, whereby each waypoint allows the transition to some other waypoints. In terms of graph theory, it is a graph $G$ where waypoints correspond to vertices $V(G)$, and valid transitions are given by directed edges $E(G)$. An edge $(a,b)$ indicates a transition from waypoint $a$ to waypoint $b$ is possible.
+\textcolor{teal}{\textbf{graph.}} A vehicle's possible paths may be thought of by a set of discrete waypoints, whereby each waypoint allows the transition to some other waypoints. In terms of graph theory, it is a digraph $G$ where waypoints correspond to vertices $V(G)$, and valid transitions are given by directed edges $E(G)$. An edge $(a,b)$ indicates a transition from waypoint $a$ to waypoint $b$ is possible.
 
 \textcolor{teal}{\textbf{classification.}} An object's uncertain classification is given by a probability distribution over classes. For example we may classify an object as either a dog with probability 0.7 or a cat with probability 0.3. Likelihoods and penalties could be combined by probabilistic expectation $Ex[X]$. For example, the expected harm or penalty is $Ex[X] = (2 \cdot 0.3) + (1 \cdot 0.7)$ given cats are twice as important or penalizing as dogs. A vertex weight $w(v)$ is set with such expectation denoting classification uncertainty.
 
@@ -17,7 +17,7 @@
 
 \textcolor{teal}{\textbf{precise formal definition}}
 
-\textbf{Definition.} For a subset of vertices $S = \{ v_1, \dots, v_k \} \subseteq V(G)$ and a vector of random variables distributions $(\mu_{X_1}, \dots, \mu_{X_k})$, an uncertain zone is a function $U$
+\textbf{Definition.} For a subset of vertices $S = \{ v_1, \dots, v_k \} \subseteq V(G)$ and a set of random variables distributions $\{ \mu_{X_1}, \dots, \mu_{X_k} \}$, an uncertain zone is a function $U$
 $$
 U: v_i \mapsto \mu_{X_i} 
 $$
@@ -29,11 +29,11 @@ $$
     \item \textit{Case 3.} $U = \{ (v_8, \{ (100, 0.5), (5, 0.5) \} ) \}$ denotes $v_8$ either has a box with probability $0.5$ and penalty $5$, or a pedestrian with probability $0.5$ and penalty $100$.
 \end{itemize}
 
-\textbf{Definition.} An uncertain environment is a tuple $(G, \{ U_i \})$, of a graph $G$ and uncertain zones $U_i$.
+\textbf{Definition.} An uncertain environment is a tuple $(G, \{ U_i \})$, of a digraph $G$ and uncertain zones $U_i$.
 
 \input{figures/modeling}
 \begin{center}
-    Figure 2: The environment modeled as a graph
+    Figure 2: The environment modeled as a digraph
 \end{center}
 
 \vspace{5mm}
