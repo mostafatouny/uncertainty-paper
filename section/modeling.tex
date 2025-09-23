@@ -17,9 +17,11 @@
 
 \textcolor{teal}{\textbf{precise formal definition}}
 
-\textbf{Definition.} For a subset of vertices $S = \{ v_1, \dots, v_k \} \subseteq V(G)$ and a set of random variables distributions $\{ \mu_{X_1}, \dots, \mu_{X_k} \}$, an uncertain zone is a function $U$
+We are given a simple directed graph $G$. That is, a set $V$ together with an irreflexive binary relation $E$ on $V$. We call them vertices and directed edges. Our digraphs are anti-symmetric between any two vertices. The sample space $\Omega$ is the set of all possible objects at some waypoint. By convention, no two objects are present in the same waypoint, so $Pr[E] = 0$ for all $E \subseteq \Omega$ where $|E| \geq 2$. A random variable $X$ associates a penalty for each outcome, and the corresponding random variable distribution $\mu_X$ associates probabilities for outcomes.
+
+\textbf{Definition.} For a subset of vertices $S = \{ v_1, \dots, v_k \} \subseteq V(G)$ and a set of random variable distributions $\{ \mu_{X_1}, \dots, \mu_{X_k} \}$, an \textit{uncertain zone} is a function $U$
 $$
-U: v_i \mapsto \mu_{X_i} 
+U: v_i \mapsto \mu_{X_i}.
 $$
 
 \textbf{Examples.} See \textit{Figure 2} for a visualizing aid.
@@ -29,7 +31,7 @@ $$
     \item \textit{Case 3.} $U = \{ (v_8, \{ (100, 0.5), (5, 0.5) \} ) \}$ denotes $v_8$ either has a box with probability $0.5$ and penalty $5$, or a pedestrian with probability $0.5$ and penalty $100$.
 \end{itemize}
 
-\textbf{Definition.} An uncertain environment is a tuple $(G, \{ U_i \})$, of a digraph $G$ and uncertain zones $U_i$.
+\textbf{Definition.} Since each $X$ induces $Ex[X]$ on a vertex, An \textit{uncertain environment} is declared to be a tuple $(G, h:V(G) \rightarrow \mathbb{R} )$, of a digraph $G$ and a partial function $h$ labeling vertices.
 
 \input{figures/modeling}
 \begin{center}

@@ -12,7 +12,7 @@ The probabilistic graph is converted into a deterministic instance through sampl
     \item (1) Read a discrete graph of way-points, along probabilistic expectations along its vertices.
     \item (2) The path planner takes a decision under the uncertainty.
     \item (3) A deterministic graph is sampled by given distributions.
-     \item (4) The path decided earlier is emulated on the deterministic graph, evaluating incurred harm or reward.
+    \item (4) The path decided earlier is emulated on the deterministic graph, evaluating incurred harm or reward.
     \item (5) Repeat (3) and (4) multiple times, aggregating evaluations, to produce a quantification of uncertainty mitigation.
 \end{itemize}
 
@@ -42,7 +42,7 @@ Running a stop sign &0.25 \\
 
 The penalty is computed for each possible decision, so that we can evaluate whether the decision taken by our mechanism is better or not.
 
-In below pictures of Carla's practical implementation, numbers \textit{(i)}, \textit{(ii)}, and \textit{(iii)} do correspond to numbers \textit{(2)}, \textit{(3)}, and \textit{(4)} in section \ref{Methodology}. Blue waypoints correspond to destination vertices; red waypoints corresponds to uncertain vertices; yellow waypoints correspond to the path decided by the vehicle.
+In below pictures of Carla's practical implementation, numbers \textit{(i)}, \textit{(ii)}, and \textit{(iii)} do correspond to numbers \textit{(2)}, \textit{(3)}, and \textit{(4)} in Section \ref{Methodology}. Blue waypoints correspond to destination vertices; red waypoints corresponds to uncertain vertices; yellow waypoints correspond to the path decided by the vehicle.
 
 For a probability distribution and the vehicle's decision induced by it, multiple trials are emulated, computing the penalty for each and for each possible decision, then we aggregate. 
 
