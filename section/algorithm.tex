@@ -29,12 +29,8 @@ In our implementation, we construct graph (4) immediately from graph (1). Detail
     Figure 4: Vertex uncertainty to edge weight
 \end{center}
 
-\textbf{Definition.} \textit{weight-backward} transformation. We are given a graph $G$ where the ith vertex is labeled with expectation $Ex[X_i]$, and $Ex[X_{root}] = 0$. Construct $G'$ whose edges are labeled as:
-$$
-Ex[X_{(v_k,v_i)}] = Ex[X_i] \; \text{in} \; G'
-\longleftrightarrow
-(v_k, v_i) \in E \; \text{in} \; G
-$$
+
+\textbf{Definition.} \textit{weight-backward} transformation. Suppose we are given a graph $G$ where the ith vertex is labeled with expectation $Ex[X_i]$. Construct a digraph $G'$ by labeling the edges of $G$ as follows: for every $v_i \in V(G)$, we label an edge $(v_k, v_i)$ by $Ex[v_i]$.
 
 \textbf{Theorem.} If $G$ is transformed to $G'$ by \textit{weight-backward}, then a path $p$ is of expectation $w$ in $G$ iff it is of expectation $w$ in $G'$.
 
@@ -54,7 +50,7 @@ Follows immediately since ordering is preserved by the previous theorem.
 
 \subsection{Neutral Path} \label{Neutral Path}
 
-Matrix $A$ here is the adjacency of a given graph $G$ whereby $A[i,j] = 1$ if and only if $(v_i, v_j) \in E(G)$. A useful property of adjacency matrices is that $A^k(i,j)$ is exactly the number of distinct walks of length $k$ from vertex $v_i$ to vertex $v_j$. Moreover if the adjacency matrix $A$ has $A[i,i] = 1 \; \forall i$, then $A^k(i,j)$ is the number of walks of length at most $k$ from $v_i$ to $v_j$. See \cite{discreteHandbook} for a background.
+The matrix $A$ here is the adjacency matrix of a given digraph $G$ whereby $A[i,j] = 1$ if and only if $(v_i, v_j) \in E(G)$. A useful property of adjacency matrices is that $A^k[i,j]$ is exactly the number of distinct walks of length $k$ from vertex $v_i$ to vertex $v_j$. Moreover, if the adjacency matrix $A$ has $A[i,i] = 1 \; \forall i$, then $A^k(i,j)$ is the number of walks of length at most $k$ from $v_i$ to $v_j$. See \cite{discreteHandbook} for a background.
 
 Matrix multiplication here, opposing the convention, is by the dot-product, defined as $v_i \cdot v_j = \bigvee_k \big ( (v_i, v_k) \wedge (v_k, v_j) \big )$.
 
