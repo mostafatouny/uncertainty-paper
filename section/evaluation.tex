@@ -1,0 +1,180 @@
+\subsection{Methodology} \label{Methodology}
+
+The probabilistic graph is converted into a deterministic instance through sampling. Each uncertain parameter, like obstacle positioning, is constructing by drawing from its probability distribution. Uncertainty gets reduced into a single concrete scenario, enabling deterministic emulation and evaluation. Multiple such samples are generated to well-approximate the probability distribution, and accordingly well-quantify our decision making mechanism on the decided path outcomes. Metrics include collisions, lives lost, traffic laws violations. Statistical measures include expected total harm or reward, and variance.
+
+\input{figures/dropout-sampling}
+\begin{center}
+    Figure 7: Evaluation methodology
+\end{center}
+
+\textbf{Procedure.}
+\begin{itemize}
+    \item (1) Read a discrete graph of way-points, along probabilistic expectations along its vertices.
+    \item (2) The path planner takes a decision under the uncertainty.
+    \item (3) A deterministic graph is sampled by given distributions.
+    \item (4) The path decided earlier is emulated on the deterministic graph, evaluating incurred harm or reward.
+    \item (5) Repeat (3) and (4) multiple times, aggregating evaluations, to produce a quantification of uncertainty mitigation.
+\end{itemize}
+
+\subsection{Experimentation} \label{Experimentation}
+
+Scenarios here are inspired by Carla's driving challenge \cite{scenarios-carla} but we introduce uncertainty aspects in the environment. Our numeric evaluation uses a penalty formula taken from Carla's challenge also \cite{eval-carla}.
+$$
+P_i = \frac{1}{1 + \sum_j c_j \cdot \text{\#infractions} }
+$$
+\begin{table}[h]
+\centering
+\begin{tabular}{cl}
+\toprule
+\textbf{Event} & \textbf{Weight $c_j$} \\
+\midrule
+Collisions with pedestrians & 1.0 \\
+Collisions with other vehicles & 0.70 \\
+Collisions with static elements & 0.60 \\
+Running a red light & 0.40 \\
+Failure to yield to emergency vehicle & 0.40 \\
+Running a stop sign &0.25 \\
+\bottomrule
+\end{tabular}
+\caption{Penalty Weights}
+\label{table:1}
+\end{table}
+
+The penalty is computed for each possible decision, so that we can evaluate whether the decision taken by our mechanism is better or not.
+
+In below pictures of Carla's practical implementation, numbers \textit{(i)}, \textit{(ii)}, and \textit{(iii)} do correspond to numbers \textit{(2)}, \textit{(3)}, and \textit{(4)} in Section \ref{Methodology}. Blue waypoints correspond to destination vertices; red waypoints corresponds to uncertain vertices; yellow waypoints correspond to the path decided by the vehicle.
+
+For a probability distribution and the vehicle's decision induced by it, multiple trials are emulated, computing the penalty for each and for each possible decision, then we aggregate. 
+
+\textbf{Obstacle Avoidance}
+
+\includegraphics[width=\textwidth]{images/lane-change.png}
+\begin{center} Figure 8: Carla scenario 17 \end{center}
+
+It is inspired by \textit{17 - Obstacle avoidance without prior action} where the vehicle aims to avoid pedestrians whose presence is probabilistic by lane change.
+
+ The right lane has an uncertain subgraph whose distribution is $0.2$, $0.5$, $0.2$. The left lane has an uncertain subgraph whose distribution is $0.7$, $0.8$, $0.8$. The vehicle decided to take the right lane. The results of 10 trials are as follows.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cccc}
+\toprule
+\textbf{Trial} & \textbf{Left Penalty} & \textbf{Right Penalty} & \textbf{Positive} \\
+\midrule
+1 & 0.33 & 0.5 & \checkmark \\
+2 & 0.5 & 0.5 & \ding{55} \\
+3 & 0.25 & 0.5 & \checkmark \\
+4 & 0.25 & 1.0 & \checkmark \\
+5 & 0.25 & 1.0 & \checkmark \\
+6 & 0.25 & 0.5 & \checkmark \\
+7 & 0.33 & 0.33 & \ding{55} \\
+8 & 0.25 & 1.0 & \checkmark \\
+9 & 0.33 & 1.0 & \checkmark \\
+10 & 0.33 & 0.5 & \checkmark \\
+\bottomrule
+\end{tabular}
+\caption{Left and right lanes' penalties.}
+\label{table:3}
+\end{table}
+
+As the vehicle is ahead of deciding between two lanes, both lanes decisions are emulated on Carla, where penalty is computed for both. If our mechanism led to a better penalty, i.e higher score, we declare the trial to be positively justifying our decision. In this case, it is reducing collisions with pedestrians. Here $80 \%$ of tested trials are positive.
+
+
+\textbf{Break}
+
+\includegraphics[width=\textwidth]{images/brake.png}
+\begin{center} Figure 9: Carla scenario 16 \end{center}
+
+It is inspired by \textit{16 - Longitudinal control after leading vehicle’s brake} where the vehicle brakes to avoid hitting pedestrians whose presence is probabilistic.
+
+The uncertain subgraph distribution is $0.4, 0.1, 0.7$. The vehicle decided to brake before any uncertain vertex. The results of 10 trials are as follows.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cccc}
+\toprule
+\textbf{Trial} & \textbf{Brake Penalty} & \textbf{Advance Penalty} & \textbf{Positive} \\
+\midrule
+1 & 0.5 & 0.5 & \ding{55} \\
+2 & 1.0 & 0.5 & \checkmark \\
+3 & 1.0 & 1.0 & \ding{55} \\
+4 & 1.0 & 1.0 & \ding{55} \\
+5 & 1.0 & 0.5 & \checkmark \\
+6 & 0.5 & 0.5 & \ding{55} \\
+7 & 0.5 & 0.33 & \checkmark \\
+8 & 1.0 & 0.5 & \checkmark \\
+9 & 1.0 & 0.5 & \checkmark \\
+10 & 0.5 & 0.33 & \checkmark \\
+\bottomrule
+\end{tabular}
+\caption{Brake versus advance penalties.}
+\label{table:4}
+\end{table}
+
+As the vehicle is ahead of deciding between braking and advancing, both lanes decisions are emulated on Carla, where penalty is computed for both. We declare a trial to be positive similarly as we did before. In this case, it is reducing collisions with pedestrians. Here $60 \%$ of tested trials are positive.
+
+It is notable to highlight the percentage here is decreased as the vehicle takes some time until it completely stops. Even if it decides to break at a way-point which is safe to be positioned in, acceleration effects may cause it to encroach into the uncertain zone. The odds of that increase if the vehicle is moving faster and an object turns out to be positioned near the boundaries of the uncertain zone.
+
+We analyze how many meters are encroached from the uncertain graph, given distance between the vehicle and the uncertain graph, alongside vehicle's speed, during the moment of braking. In \textit{Image 3} the vehicle brakes only one waypoint, i.e 2 meters, from the uncertain graph colored in red.
+
+\begin{center}
+  \includegraphics[width=0.5\textwidth]{images/brake-distance.png} \\
+  Figure 10: Break analysis
+\end{center}
+
+The results of testing multiple values of distances and speeds are in \textit{Table 5}. For example, when the vehicle was 2 meters ahead of the uncertain graph with speed 60 km/h, it encroached 6 meters from the uncertain subgraph.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cccc}
+\toprule
+\multicolumn{1}{c}{\textbf{Distance (m)}} & \multicolumn{3}{c}{\textbf{Speed (km/h)}} \\
+\multicolumn{1}{c}{} & \textbf{30} & \textbf{45} & \textbf{60} \\
+\midrule
+2 & 2 & 4 & 6 \\
+4 & 2 & 4 & 4 \\
+8 & 0 & 0 & 0 \\
+\bottomrule
+\end{tabular}
+\caption{Meters encroached given distances and speeds.}
+\label{table:5}
+\end{table}
+
+Results suggest more than 4 meters are needed to avoid the uncertain subgraph upon braking.
+
+In the \textit{Lane Change} scenario, modifying the distance and speed has no notable difference; the vehicle performs lane changes under these modified variables.
+
+\textbf{Intersection}
+
+\includegraphics[width=\textwidth]{images/intersection.png}
+\begin{center} Figure 11: Carla scenario 3 \end{center}
+
+It is inspired by \textit{3 - Right turn at an intersection with crossing traffic.} where the vehicle breaks to avoid hitting crossing vehicles whose presence is probabilistic.
+
+The uncertain subgraph distribution is $0.6, 0.5, 0.7$. The vehicle decided not to take the intersection. The results of 10 trials are as follows.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cccc}
+\toprule
+\textbf{Trial} & \textbf{Intersection Penalty} & \textbf{Brake Penalty} & \textbf{Positive} \\
+\midrule
+1 & 0.59 & 1.0 & \checkmark \\
+2 & 0.42 & 1.0 & \checkmark \\
+3 & 0.59 & 1.0 & \checkmark \\
+4 & 0.59 & 1.0 & \checkmark \\
+5 & 0.59 & 1.0 & \checkmark \\
+6 & 0.42 & 1.0 & \checkmark \\
+7 & 1.0 & 1.0 & \ding{55} \\
+8 & 1.0 & 1.0 & \ding{55} \\
+9 & 0.42 & 1.0 & \checkmark \\
+10 & 0.42 & 1.0 & \checkmark \\
+\bottomrule
+\end{tabular}
+\caption{Brake versus intersecting penalties.}
+\label{table:6}
+\end{table}
+
+As the vehicle is ahead of deciding between taking the intersection and braking, both decisions are emulated on Carla, where penalty is computed for both. We declare a trial to be positive similarly as we did before. In this case, it is reducing collisions with vehicles. Here $80 \%$ of tested trials are positive.
+
+Observe the percentage here is increased, as the vehicle moves slowly at conjunctions, so it can break confidently.

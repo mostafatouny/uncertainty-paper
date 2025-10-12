@@ -1,0 +1,196 @@
+\textcolor{teal}{\textbf{solution idea.}} We distinguish between uncertain subgraphs and neutral subgraphs devoid of any uncertainty. Shortest-path algorithms are queried on uncertain subgraphs. A fast subroutine searches for paths among the neutral zone, connecting those uncertain subgraphs with each other. Combining computed paths of uncertain zones and neutral zones is realized by constructing a smaller higher-level graph as in \textit{Figure (3-4)}. Finding a shortest-path of it, accounts for both uncertain subgraphs and neutral subgraphs, minimizing total expectation. Any black-box shortest-path subroutine could be used, and the choice of it is out of this paper's scope. Dynamic updates follow the basic idea of avoiding recomputing a path from $s$ to $d$ if all intermediary vertices are unchanged. If an object's subgraph probabilities change, then the higher-level graph will correspondingly change, requiring only re-querying shortest-path subroutine on the smaller higher-level graph, utilizing all what was previously computed. If an object's diameter changes, a new object appears or disappears, then a single vertex of the higher-level graph will correspondingly change. The faster neutral path gets re-queried, then again we look for a better path on the higher-level graph. In all cases, expensive computations of uncertain subgraphs shortest-paths are re-utilized. Tackling vertex weights is not common in the literature. Notable rare examples are \cite{vertexWeighted_1}, \cite{vertexWeighted_2}, and \cite{vertexWeighted_3}.
+
+\textcolor{teal}{\textbf{intuitive example on figure 3.}} Let's reflect that on a concrete example of \textit{Figure 3}. (1) is the given input graph. For an uncertain subgraph, (2) reduces the shortest path from a starting vertex to a destination vertex, to a single weighted edge. (3) transforms every source-destination pair to a single vertex. (4) queries the faster neutral path mechanism, to find arbitrary paths between the yellow highlighted vertices. Resulting edges are not weighted since selecting which neutral path to take has nothing to do with minimizing expected harm. Now we are given a vertex-weighted graph again, so we can query shortest-path on it in (5). As seen in (6), the path computed in (5), alongside neutral paths, and shortest-paths computed earlier, are all combined to produce the final optimal path of (1).
+
+\input{figures/algorithm}
+\begin{center}
+    Figure 3: High-level Architecture
+\end{center}
+
+\textcolor{teal}{\textbf{solution within math notation.}} The input is a graph containing uncertain subgraphs $\{G^{(z)}\}_z$, each represents object uncertainty in the environment. For each subgraph $G^{(z)}$ the shortest-path distance of all pairs $(s_i^{(z)}, d_j^{(z)})$ of local starting and destination vertices gets computed. Those pairs get converted to weighted edges with weights $w_{ij}^{(z)}$ corresponding to shortest-path weights. Each such pair $(s_i^{(z)}, d_j^{(z)})$ gets transformed to a vertex $v_{ij}^{(z)}$ weighted by $w_{ij}^{(z)}$, whereby it has inner edges $(v, v_{ij}^{(z)})$ if there were $(v, s_i^{(z)})$ for all $v$, and has outer edges $(v_{ij}^{(z)}, v)$ if there were $(d_j^{(z)}, v)$. For every pair of vertices $v_{ij}^{(z)}$ and $v_{qp}^{(z')}$, a random path is sampled, and a corresponding edge $(v_{ij}^{(z)}, v_{qp}^{(z')})$ is added. Now we can compute the shortest path to any destination. Through our transformations and computations, a computed path could be reduced back to the original read graph to have a shortest-path.
+
+\textbf{Procedure.}
+\begin{itemize}
+    \item (1) Read a graph with uncertain subgraphs $\{G^{(z)} \}_z$.
+    \item (2) Reduce every uncertain subgraph $G^{(z)}$ to edges $(s_i^{(z)}, d_j^{(z)})$ weighted with the shortest distance $w_{ij}^{(z)}$ between $s_i^{(z)}$ and $d_j^{(z)}$.
+    \item (3) For every $z$, reduce every pair $(s_i^{(z)}, d_j^{(z)})$ to vertex $v_{ij}^{(z)}$ weighted by $w_{ij}^{(z)}$. Set inner edges $(v,v_{ij}^{(z)}) \longleftrightarrow (v, s_i) \; \forall v$ and set outer edge $(v_{ij}^{(z)}, v) \longleftrightarrow (d_j, v) \; \forall v$.
+    \item (4) For every $v_{ij}^{(z)}$ and $v_{qp}^{(z')}$, find a neutral path from $v_{ij}^{(z)}$ to $v_{qp}^{(z')}$, then set edge $(v_{ij}^{(z)}, v_{qp}^{(z')})$.
+    \item (5) Compute a shortest path to any destination.
+    \item (6) Output the path but on the original graph, which shows the neutral paths and shortest paths of the uncertain subgraphs altogether.
+\end{itemize}
+
+In our implementation, we construct graph (4) immediately from graph (1). Detailed steps are given for a clearer illustration.
+
+
+\subsection{Vertex-weighted Shortest Path}
+
+\begin{center}
+    \input{figures/uncertain-vertices-to-edges} \\
+    Figure 4: Vertex uncertainty to edge weight
+\end{center}
+
+
+\textbf{Definition.} \textit{weight-backward} transformation. Suppose we are given a graph $G$ where the ith vertex is labeled with expectation $Ex[X_i]$. Construct a digraph $G'$ by labeling the edges of $G$ as follows: for every $v_i \in V(G)$, we label an edge $(v_k, v_i)$ by $Ex[v_i]$.
+
+\textbf{Theorem.} If $G$ is transformed to $G'$ by \textit{weight-backward}, then a path $p$ is of expectation $w$ in $G$ iff it is of expectation $w$ in $G'$.
+
+\textit{Proof.} Recall by definition $Ex[X_{root}] = 0$. For the base case where $|p| = 1$, total expectation $Ex[X] = 0$ in $G$. In $G'$, $p$ won't have any edges, so $Ex[X] = 0$ in $G'$ as well.
+
+Assume the statement holds for $k \geq 1$, and consider an arbitrary path $p$ where $|p| = k+1$. Call $p = (v_1, \dots, v_{k+1})$. By hypothesis $\sum_{i=1}^k Ex[X_i] = \sum_{i=2}^k Ex[X_{(v_{i-1}, v_{i})}]$. By definition we have $Ex[X_{k+1}] = Ex[X_{(v_k, v_{k+1})}]$. Hence the inductive step follows as
+\begin{align*}
+\left ( \sum_{i=1}^k Ex[X_i] \right ) + Ex[X_{k+1}] &= \left ( \sum_{i=2}^k Ex[X_{(v_{i-1}, v_{i})}] \right ) + Ex[X_{(v_k, v_{k+1})}] \\
+\sum_{i=1}^{k+1} Ex[X_i] &= \sum_{i=2}^{k+1} Ex[X_{(v_{i-1}, v_{i})}]
+\end{align*}
+
+\textbf{Corollary.} For a \textit{directed graph} $G$ and a path $p$, $p$ is minimal or maximal in $G$ if and only if $p$ is minimal or maximal in transformed $G'$.
+
+Follows immediately since ordering is preserved by the previous theorem.
+
+\subsection{Neutral Path} \label{Neutral Path}
+
+The matrix $A$ here is the adjacency matrix of a given digraph $G$ whereby $A[i,j] = 1$ if and only if $(v_i, v_j) \in E(G)$. A useful property of adjacency matrices is that $A^k[i,j]$ is exactly the number of distinct walks of length $k$ from vertex $v_i$ to vertex $v_j$. 
+
+Consider a relation composition $G^k$ where $a G^k b$ iff there is a length-k walk in $G$ from $a$ to $b$. Observe $G^0 \cup G^1 \cup \dots \cup G^{|V(G)|-1} = (G \cup G^0)^{|V(G)|-1}$. Accordingly, if we consider the graph $G \cup G^0$ in place of $G$, with matrix $A + I_n$ in place of $A$, then $A^k[i,j]$ is the number of walks of length at most $k$ from $v_i$ to $v_j$. See \cite{discreteHandbook} for a background.
+
+\textbf{Proposition.} Consider a Matrix multiplication by the dot-product: $v_i \cdot v_j = \bigvee_k \big ( (v_i, v_k) \wedge (v_k, v_j) \big )$. It follows $A^k[a,b] = 1$ iff $a G^k b$, so it decides whether a walk exists instead of counting walks.
+
+\textbf{Proposition.} For $k < n-1$, if $A^k[i,j] = 1$ then there is a path, but if $A^k[i,j] = 0$ then the existence of a path from $i$ to $j$ is undecided.
+
+\textbf{Problem.} Intermediary matrix $M$ on $A^1, A^2, A^4, \dots, A^{2^m}$.
+
+$A^1 = G \cup G^0 = W \vee I$ and $A^{2k} = A^k \cdot A^k$.
+\begin{align*}
+M^1[i,j] &= \begin{cases} 
+      \phi & A^1[i,j]=1, \; i \neq j \\
+      Nil & \text{otherwise}
+    \end{cases} \\
+M^{2k}[i,j] &= \begin{cases} 
+      q & A^k[i,q] = 1 = A^k[q,j], \; i,j,q \text{ distinct} \\
+      Nil & \text{otherwise}
+    \end{cases}
+\end{align*}
+
+\textbf{Algorithm}
+\begin{verbatim}
+# input:  k, power of 2; i & j, M^k[i,j] != Nil
+# output: intermediary path between i and j
+intermediaryPath(i, j, k)
+
+    # base case. directly connected, then no intermediary path
+    if G[i,j] = phi return ()
+    
+    # not directly connected, then we pick an intermediary vertex
+    q = M^k[i,j]
+    
+    # recursively construct intermediary paths from i to q, and from q to j.
+    return pathConstruction(i, q, k/2) + (q) + pathConstruction(q, j, k/2)
+
+# input: k, power of 2; i & j
+# output: path from i to j
+main(i, j, k)
+
+    # trivial path
+    if i == j return (i)
+
+    # directly connected
+    if G[i,j] == 1:
+        return (i, j)
+
+    # if not directly connected, and no intermediary vertex exists,
+    # then no path exists
+    if M^k[i,j] == Nil return Nil
+
+    # if an intermediary vertex exists,
+    # then so does some intermediate path
+    return (i) + intermediaryPath(i, j, k) + (j)
+\end{verbatim}
+
+\textit{Correctness Proof.} By strong induction on the length of paths.
+
+For the base case where $|p| = 1$, clearly $i = j$ and we get the right answer.
+
+For the base case where $|p| = 2$, clearly $p = (i,j)$ and $i$ is directly connected to $j$.
+
+Consider a path $p$ such that $|p| = m > 2$ and denote $p = (v_1, v_2, \dots, v_m)$. Assume the algorithm is correct for any path $p$ where $|p| < m$.
+
+For the case of $v_1 \neq v_m$ and $M^k[i,j] \neq Nil$, we know there is an intermediary vertex $q$, with a path $p_0$ from $v_1$ to $q$, and a path $p_1$ from $q$ to $v_m$. Clearly $|p_0| < k$ and $|p_1| < k$, and by induction hypothesis, paths $p_0$ and $p_1$ produced are correct. It follows the path $(v_1) + p_0 + (q) + p_1 + (v_m)$ is correct from $i$ to $j$ as intended.
+
+
+\subsection{Dynamic Update}
+
+\textbf{Weights}
+
+\begin{center}
+    \input{figures/dynamic-0}
+    Figure 5: Dynamic update by vertices weights
+\end{center}
+
+\textbf{Proposition.} If no weight updates occur to the intersection of the set of fathers / predecessors of $d_j$ and the set of children of $s_i$, then the optimality of $s_i-d_j$ paths are preserved.
+
+\textit{Proof.} Let $\Delta = ((w'(s_i) - w(s_i) + (w'(d_i) - w(d_i))$ be the net weight change of $s_i$ and $d_j$. Then for any path $p_i$, the new weight is $w'(p_i) = w(p_i) + \Delta$. It follows a minimal path weight $p_k$ is preserved. Indeed, if we have real numbers $a_1, a_2, \dots, a_k$ with minimum $a_k$, then $(a_k + \Delta)$ would be a minimum of $(a_1 + \Delta), \dots, (a_k + \Delta)$.
+
+\textbf{Procedure.}
+\begin{itemize}
+    \item Memoize all pairs in the left subgraph and right subgraph through the previously computed distances and predecessors matrices.
+    \item Call any all pairs shortest path algorithm.
+\end{itemize}
+
+\begin{verbatim}
+# input: matrix updatedGraph, with the newly updated weights
+#        list updatedVertices
+#        2d list preDistances, the previously computed distances matrix
+#        2d list prePredecessors, the previously computed predecessor matrix
+def dynamicAllPairsShortestPath(updatedGraph, updatedVertices, preDistances, prePredecessors):
+    
+    # length
+    n = len(updatedGraph)
+    
+    # initialize empty memoization
+    distMemo = {}
+    predMemo = {}
+    
+    # for all pairs
+    for i in range(n):
+        for j in range(n):
+            # left subgraph with no updated vertices
+            if i < min(updatedVertices) and j < min(updatedVertices):
+            
+                # memoize the previously computed distance
+                dist_memo[(i,j,n)] = preDistances[i][j]
+                
+                # memoize the previously computed predecessor
+                pred_memo[(i,j,n)] = prePredecessors[i][j]
+            
+            # right subgraph with no updated vertices
+            if i > max(updatedVertices) and j > max(updatedVertices):
+            
+                # memoize the previously computed distance
+                dist_memo[(i,j,n)] = preDistances[i][j]
+                
+                # memoize the previously computed predecessor
+                pred_memo[(i,j,n)] = prePredecessors[i][j]
+    
+    # execute all pairs shortest path algorithm but without recomputing memoized pairs
+    return AllPairsShortestPath(updatedGraph, distMemo, predMemo)
+\end{verbatim}
+
+\textbf{Corollary.} Procedure correctness.
+
+\textit{Proof.} We already know the correctness of memoization from the previous \textit{lemma}. Given a correct memoization, the correctness of the all pairs shortest path is given, since it is used as a black-box subroutine. $\blacksquare$
+
+
+\textbf{Diameter}
+
+\begin{center}
+    \input{figures/dynamic-1}
+    Figure 6: Dynamic update by diameter reduction
+\end{center}
+
+\textbf{Procedure.}
+\begin{itemize}
+    \item If an $s_i^{(k)}-d_j^{(k)}$ path is found in $G^{(z)}$, add an edge trespassing vertex $v^{(z)}$ in the uncertain subgraph.
+    \item Recompute $G^{(z)}$ shortest path.
+    \item Recompute shortest path in the uncertain vertex.
+\end{itemize}
+
+Given a diameter collapse of an uncertain subgraph $G^{(z)}$, we look for neutral paths of source-destination pairs $(s_i^{(k)}, d_j^{(k)})$ within it. If found, a new edge is added bypassing the vertex $v^{(z)}$, enabling the avoidance of traversing through $G^{(z)}$. Moreover, the shortest path within $G^{(z)}$ is recomputed as some vertices might be reachable only through the collapsed $G^{(z)}$. Finally, the shortest path of uncertain vertices $v^{(z)}$ is recomputed, hopefully finding more optimal paths through the new bypasses.

@@ -1,0 +1,49 @@
+\usepackage[utf8]{inputenc}
+
+% geometry
+\usepackage[margin=3cm]{geometry}
+
+% math packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% unnumbered sections
+% \setcounter{secnumdepth}{0}
+
+% no indent of paragraphs
+\usepackage{parskip}
+% prohibit breaking lines
+\hyphenpenalty = 10000
+
+\usepackage{booktabs} % For better-looking tables
+\usepackage{array} % For column formatting
+\usepackage{pifont} % \ding{55} for xmark
+
+% colours
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+    citecolor=blue,
+    pdftitle={Overleaf Example},
+    pdfpagemode=FullScreen,
+}
+
+% table
+\usepackage{array}
+
+% drawing graphics
+\usepackage{tikz} 
+% colours
+\usepackage[x11names]{xcolor}
+\definecolor{darkred}{rgb}{0.7, 0, 0}
+% for positioning text above vertex
+% \node[above=0.25mm of 2] {$\frac{1}{4}$};
+\usetikzlibrary{positioning}
+
+
+% bibliography file
+\usepackage[backend=bibtex]{biblatex}
+\addbibresource{ref.bib}

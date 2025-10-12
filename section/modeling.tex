@@ -1,0 +1,51 @@
+\textcolor{teal}{\textbf{real-life scenario.}} We illustrate our framework for autonomous vehicle path planning in environments with uncertain elements. An uncertain object's diameter and probability is modeled as a subgraph with weighted edges. Navigating through uncertain conditions, minimizing total probabilistic expectation, is accounted by finding a shortest-weight path. See \textit{Figure 1} for a vehicle's environment's object detection.
+
+\textcolor{teal}{\textbf{math notation within a real-life context.}}
+
+\textcolor{teal}{\textbf{graph.}} A vehicle's possible paths may be thought of by a set of discrete waypoints, whereby each waypoint allows the transition to some other waypoints. In terms of graph theory, it is a digraph $G$ where waypoints correspond to vertices $V(G)$, and valid transitions are given by directed edges $E(G)$. An edge $(a,b)$ indicates a transition from waypoint $a$ to waypoint $b$ is possible.
+
+\textcolor{teal}{\textbf{classification.}} An object's uncertain classification is given by a probability distribution over classes. For example we may classify an object as either a dog with probability 0.7 or a cat with probability 0.3. Likelihoods and penalties could be combined by probabilistic expectation $Ex[X]$. For example, the expected harm or penalty is $Ex[X] = (2 \cdot 0.3) + (1 \cdot 0.7)$ given cats are twice as important or penalizing as dogs. A vertex weight $w(v)$ is set with such expectation denoting classification uncertainty.
+
+\textcolor{teal}{\textbf{positioning.}} An object's uncertain position corresponds to potential subset of vertices, which we call an uncertain subgraph $U$. Since the object is known to exist, vertices of $U$ constitute a probability distribution. For example, if an object's position may be uniformly uncertain among nearby vertices $v_1, v_2, v_3, v_4, v_5$ where $(v_1,v_2), (v_1, v_3), (v_1, v_4), (v_5,v_1) \in E(G)$. Similarly, a constant penalty, since it is the same object, may be set for all vertices of $U$.
+
+\textcolor{teal}{\textbf{path.}} We will prove later it is equivalent to set a weight for edge $(a,b)$ in place of vertex $b$ weight. By linearity of expectation, the total probabilistic expectation of a path is the summation of edges' weights the path navigates through. It follows, computing a shortest path suffices for minimizing the total expectation.
+
+\begin{center}
+  \includegraphics[width=0.75\textwidth]{images/sensor.png} \\
+  Figure 1:  Vehicle's detected environment \footnote{taken from \cite{sensor}}.
+\end{center}
+
+\textcolor{teal}{\textbf{precise formal definition}}
+
+We are given a simple directed graph $G$. That is, a set $V$ together with an irreflexive binary relation $E$ on $V$. We call them vertices and directed edges. Our digraphs are anti-symmetric between any two vertices. The sample space $\Omega$ is the set of all possible objects at some waypoint. By convention, no two objects are present in the same waypoint, so $Pr[E] = 0$ for all $E \subseteq \Omega$ where $|E| \geq 2$. A random variable $X$ associates a penalty for each outcome, and the corresponding random variable distribution $\mu_X$ associates probabilities for outcomes.
+
+\textbf{Definition.} For a subset of vertices $S = \{ v_1, \dots, v_k \} \subseteq V(G)$ and a set of random variable distributions $\{ \mu_{X_1}, \dots, \mu_{X_k} \}$, an \textit{uncertain zone} is a function $U$
+$$
+U: v_i \mapsto \mu_{X_i}.
+$$
+
+\textbf{Examples.} See \textit{Figure 2} for a visualizing aid.
+\begin{itemize}
+    \item \textit{Case 1.} $U = \{ (v_8, \{(1, 0.7)\} ) \}$ denotes an object is present in some vertex $v_8$ with probability $0.7$.
+    \item \textit{Case 2.} $U = \{ (v_8, \{(1, 0.3)\}), (v_{12}, \{(1, 0.3)\}), (v_{14}, \{(1, 0.3)\}) \}$ denotes an object is present in one of vertices $v_8$, $v_{12}$, and $v_{14}$, each with probability $0.3$.
+    \item \textit{Case 3.} $U = \{ (v_8, \{ (100, 0.5), (5, 0.5) \} ) \}$ denotes $v_8$ either has a box with probability $0.5$ and penalty $5$, or a pedestrian with probability $0.5$ and penalty $100$.
+\end{itemize}
+
+\textbf{Definition.} "given an uncertain zone" "number definitions". Since each $X$ induces $Ex[X]$ on a vertex, an \textit{uncertain environment} is declared to be a tuple $(G, h:V(G) \rightarrow \mathbb{R} )$, of a digraph $G$ and a partial function $h$ labeling vertices.
+
+\input{figures/modeling}
+\begin{center}
+    Figure 2: The environment modeled as a digraph
+\end{center}
+
+\vspace{5mm}
+
+Observe two cases. In the former, a single object's existence is known but its position is probabilistically uniform. In the latter, it is possible to have multiple existing objects or none at all. In both cases, the expectation of a vertex $Ex[\mu_{X_i}]$ is the same. As we aim in our work to reduce the expected harm, we don't need to distinguish the former case from the latter. So a single approach enables us to solve both cases.
+
+\textbf{Lemma.} For an uncertain zone $U$, the following two scenarios result in exactly the same expectation for vertices: (1) An object is uniformly placed into a vertex of the subgraph; (2) Each vertex independently has an object with probability 1/k.
+
+\textit{Proof.} Let $X_i$ be an indicator random variable, taking value $1$ if an object is placed in the ith vertex and $0$ otherwise. In the first case, since the object is placed uniformly, each vertex has exactly $1/k$ probability of receiving it. In the second case, by definition, each vertex independently has probability $1/k$ of containing an object. Therefore, in both scenarios, $Pr[X_i=1] = 1/k$ for any vertex $i$. The expected value of $X_i$ is $Ex[X_i] = 1 · Pr[X_i=1] + 0 · Pr[X_i=0] = 1 · (1/k) + 0 · ((k-1)/k) = 1/k$. Thereby, despite the different underlying distribution, both scenarios yield identical expected labeling across all vertices in the subgraph.
+
+\textbf{Proposition.} In both cases, traversing the whole subgraph, in expectation hits a single object. This means that regardless of whether we use the first method (uniformly placing exactly one object across the k vertices) or the second method (independently assigning an object to each vertex with probability 1/k), the expected number of objects encountered when examining all vertices remains the same.
+
+\textit{Proof.} By applying the linearity of expectation property, the expected total number of objects in the subgraph is $Ex[X_1 + X_2 + \dots + X_k] = Ex[X_1] + Ex[X_2] + \dots + Ex[X_k]$. We already know $Ex[X_i] = 1/k$ for each vertex $i$, and there are $k$ vertices in total, then the expectation is $k · (1/k) = 1$. While the proof is simple but the observation is counterintuitive, as the second scenario could potentially place multiple objects or no objects at all.
