@@ -52,17 +52,19 @@ The matrix $A$ here is the adjacency matrix of a given digraph $G$ whereby $A[i,
 
 Consider a relation composition $G^k$ where $a G^k b$ iff there is a length-k walk in $G$ from $a$ to $b$. Observe $G^0 \cup G^1 \cup \dots \cup G^{|V(G)|-1} = (G \cup G^0)^{|V(G)|-1}$. Accordingly, if we consider the graph $G \cup G^0$ in place of $G$, with matrix $A + I_n$ in place of $A$, then $A^k[i,j]$ is the number of walks of length at most $k$ from $v_i$ to $v_j$. See \cite{discreteHandbook} for a background.
 
-\textbf{Definition.} boolean dot product, in place dot product
+\textbf{Definition.} Boolean Dot Product. Given ith row vector $v_i$ and jth column vector $v_j$ of a matrix, the boolean dot product is $v_i \odot v_j = \bigvee_k \big ( (v_i, v_k) \wedge (v_k, v_j) \big )$, whose co-domain is $1$ and $0$.
 
-\textbf{Definition.} matrix boolean product $A^{[r]}$, in place matrix multiplication
+\textbf{Definition.} Matrix Boolean Product. Given two matrices $A$ and $B$, their boolean product is $A \odot B = C$ whereby $C[i,j] = A[i,] \odot B[,j]$.
 
-\textbf{Proposition.} Consider a Matrix multiplication by the dot-product: $v_i \cdot v_j = \bigvee_k \big ( (v_i, v_k) \wedge (v_k, v_j) \big )$. It follows $A^k[a,b] = 1$ iff $a G^k b$, so it decides whether a walk exists instead of counting walks.
+\textbf{Notation.} We denote $A^{[k]} = \underbrace{A \odot \dots \odot A}_{k \text{ times}}$.
 
-\textbf{Proposition.} For $k < n-1$, if $A^k[i,j] = 1$ then there is a path, but if $A^k[i,j] = 0$ then the existence of a path from $i$ to $j$ is undecided.
+\textbf{Proposition.} $A^{[k]}[a,b] = 1$ iff $a G^k b$. It decides whether a walk exists, instead of counting walks in usual matrix multiplication.
 
-\textbf{Problem.} Intermediary matrix $M$ on $A^1, A^2, A^4, \dots, A^{2^m}$.
+\textbf{Proposition.} Given a graph of order $n$, if $k < n-1$, and $A^k[i,j] = 1$, then there is a path from $i$ to $j$, but if $A^k[i,j] = 0$ then the existence of a path from $i$ to $j$ in the graph is undecided.
 
-$A^1 = G \cup G^0 = W \vee I$ and $A^{2k} = A^k \cdot A^k$.
+\textbf{Definition.} Intermediary matrices $M$ corresponding to $A^1, A^2, A^4, \dots, A^{2^m}$.
+
+$A^1 = G \cup G^0$ and $A^{2k} = A^k \odot A^k$.
 \begin{align*}
 M^1[i,j] &= \begin{cases} 
       \phi & A^1[i,j]=1, \; i \neq j \\
@@ -74,7 +76,14 @@ M^{2k}[i,j] &= \begin{cases}
     \end{cases}
 \end{align*}
 
-\textbf{Algorithm}
+\textbf{Algorithm.} Given:
+\begin{itemize}
+  \item an adjacency matrix $A$ of $G \cup G^0$ whose order is $n$.
+  \item a power of two $k \geq n$.
+  \item vertices $i$ and $j$.
+\end{itemize}
+a constructed path from vertex $i$ to $j$ is returned.
+
 \begin{verbatim}
 # input:  k, power of 2; i & j, M^k[i,j] != Nil
 # output: intermediary path between i and j
@@ -87,9 +96,9 @@ intermediaryPath(i, j, k)
     q = M^k[i,j]
     
     # recursively construct intermediary paths from i to q, and from q to j.
-    return pathConstruction(i, q, k/2) + (q) + pathConstruction(q, j, k/2)
+    return intermediaryPath(i, q, k/2) + (q) + intermediaryPath(q, j, k/2)
 
-# input: k, power of 2; i & j
+# input: k power of 2; i & j
 # output: path from i to j
 main(i, j, k)
 
