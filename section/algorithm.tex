@@ -50,15 +50,15 @@ Follows immediately since ordering is preserved by the previous theorem.
 
 The matrix $A'$ is the adjacency matrix of a given digraph $G$ whereby $A'[i,j] = 1$ if and only if $(v_i, v_j) \in E(G)$. A useful property of adjacency matrices is that $(A')^k[i,j]$ is exactly the number of distinct walks of length $k$ from vertex $v_i$ to vertex $v_j$. 
 
-Consider a relation composition $G^k$ where $a G^k b$ iff there is a walk of length-k from $a$ to $b$ in $G$. Observe the union $G^0 \cup G^1 \cup \dots \cup G^{|V(G)|-1}$ is a directed graph $(G \cup G^0)^{|V(G)|-1}$ in which an arrow exists whenever there is a walk of length at most $k$ in $G$. See \cite{discreteHandbook} for a background. A \textit{Boolean Vector} is a vector whose entries are zeros or ones. Given two boolean vectors $v$ and $w$, their \textit{Boolean Dot Product} is $v \odot w = \bigvee_k \big ( v[k] \wedge w[k] \big )$. Given two boolean matrices $A$ and $B$, their \textit{Matrix Boolean Product} is $A \odot B = C$ whereby $C[i,j]$ is the boolean product of the ith row of $A$ and the jth column of $B$. We denote $A^{[k]} = \underbrace{A \odot \dots \odot A}_{k \text{ times}}$. Let $A = A' + I_n$ corresponding to $G \cup G^0$.
+Consider a relation composition $G^k$ where $a G^k b$ iff there is a walk of length-k from $a$ to $b$ in $G$. Observe the union $G^0 \cup G^1 \cup \dots \cup G^{|V(G)|-1}$ is a directed graph $(G \cup G^0)^{|V(G)|-1}$ in which an arrow exists whenever there is a walk of length at most $k$ in $G$. See \cite{discreteHandbook} for a background. A \textit{Boolean Vector} is a vector whose entries are zeros or ones. Given two boolean vectors $v$ and $w$, their \textit{Boolean Dot Product} is $v \odot w = \bigvee_k \big ( v[k] \wedge w[k] \big )$. Given two boolean matrices $A$ and $B$, their \textit{Matrix Boolean Product} is $A \odot B = C$ whereby $C[i,j]$ is the boolean product of the ith row of $A$ and the jth column of $B$. We denote $A^{[k]} = \underbrace{A \odot \dots \odot A}_{k \text{ times}}$. Let $A = A' + I_n$ via entry-wise boolean addition, corresponding to $G \cup G^0$.
 
-\textbf{Theorem.} $A^{[k]}[a,b] = 1$ iff there is a walk of length at most $k$ in $G$.
+\textbf{Theorem.} $A^{[k]}[a,b] = 1$ iff there is a walk of length at most $k$ from $a$ to $b$ in $G$.
 
 \textit{Proof.} We proceed by induction on $k$.
 
 Base Case. Consider $k = 1$. By definition $A = A' + I_n$. So
 $$
-A[ a,b ] = 1 \iff A'[a,b]=1 \text{ or } a = b
+A[ a,b ] = 1 \iff A'[a,b]=1 \text{ or } a = b.
 $$
 Thus $A[a,b]=1$ iff there is either an edge $a \to b$ in G, i.e a walk of length $1$, or $a=b$, the trivial walk of length $0$. So the walk is of length at most $1$.
 
@@ -73,7 +73,7 @@ $$
 A^{[k+1]}[a,b] = \bigvee_{v}(A^{[k]}[a,v] \land A[v,b]) \ge A^{[k]}[a,x] \land A[x,b] = 1 \quad \blacksquare
 $$
 
-\textbf{Proposition.} If $k < n-1$, and $A^{[k]}[i,j] = 1$, then there is a path from $i$ to $j$ in $G$, but if $A^{[k]}[i,j] = 0$ then the existence of such a path is inconclusive.
+\textbf{Corollary.} If $k < n-1$, and $A^{[k]}[i,j] = 1$, then there is a path from $i$ to $j$ in $G$, but if $A^{[k]}[i,j] = 0$ then the existence of such a path is inconclusive.
 
 \textbf{Definition.} Intermediary matrices $M$ corresponding to $A^{[1]}, A^{[2]}, A^{[4]}, \dots, A^{[2^m]}$, where $A^{[1]} = G \cup G^0$ and $A^{[2k]} = A^{[k]} \odot A^{[k]}$.
 \begin{align*}
