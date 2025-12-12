@@ -70,20 +70,22 @@ $(\rightarrow)$ Suppose $A^{[k+1]}[a,b] = 1$. Then there exists some $v$ with $A
 
 $(\leftarrow)$ Suppose there is a walk from $a$ to $b$ in $G$ of length at most $k+1$. Decompose it into a walk $w$ of length at most $k$ and a walk $w'$ of length at most $1$. Call $w = (a, \dots, x)$ and $w' = (x, \dots, b)$. It follows
 $$
-A^{[k+1]}[a,b] = \bigvee_{v}(A^{[k]}[a,v] \land A[v,b]) \ge A^{[k]}[a,x] \land A[x,b] = 1 \quad \blacksquare
+A^{[k+1]}[a,b] = \bigvee_{v}(A^{[k]}[a,v] \land A[v,b]) \ge A^{[k]}[a,x] \land A[x,b] = 1. \quad \blacksquare
 $$
 
-\textbf{Corollary.} If $k < n-1$, and $A^{[k]}[i,j] = 1$, then there is a path from $i$ to $j$ in $G$, but if $A^{[k]}[i,j] = 0$ then the existence of such a path is inconclusive.
+\textbf{Corollary.} $A^{[n-1]}[i,j] = 1$ iff there is a path from $i$ to $j$.
 
-\textbf{Definition.} Intermediary matrices $M$ corresponding to $A^{[1]}, A^{[2]}, A^{[4]}, \dots, A^{[2^m]}$, where $A^{[1]} = G \cup G^0$ and $A^{[2k]} = A^{[k]} \odot A^{[k]}$.
+\textbf{Corollary.} For any $k < n-1$, if $A^{[k]}[i,j] = 0$, then it is not sufficent to exclude the existence of a path from $i$ to $j$.
+
+\textbf{Definition.} Let $G$ be a digraph with adjacency matrix $A'$. Let $A = A' + I_n$. The intermediary matrix $M^{2^k}$ for $k \geq 1$ is defined as follows: %corresponding to $A^{[1]}, A^{[2]}, A^{[4]}, \dots, A^{[2^m]}$, where $A^{[1]}$ corresponds to $G \cup G^0$ %and $A^{[2k]} = A^{[k]} \odot A^{[k]}$.
 \begin{align*}
-M^1[i,j] &= \begin{cases} 
-      \phi & A^1[i,j]=1, \; i \neq j \\
-      Nil & \text{otherwise}
-    \end{cases} \\
-M^{2k}[i,j] &= \begin{cases} 
-      q & A^k[i,q] = 1 = A^k[q,j], \; i,j,q \text{ distinct} \\
-      Nil & \text{otherwise}
+% M^1[i,j] &= \begin{cases} 
+%     \phi & A^{[1]}[i,j]=1, \; i \neq j \\
+%       Nil & \text{otherwise}
+%     \end{cases} \\
+M^{2^k}[i,j] &= \begin{cases} 
+    q & A^{[2^{k-1}]}[i,q] = 1 = A^{[2^{k-1}]}[q,j], \; i,j,q \text{ distinct,} \\
+      Nil & \text{otherwise.}
     \end{cases}
 \end{align*}
 
@@ -100,27 +102,27 @@ a constructed path from vertex $i$ to $j$ is returned.
 # output: intermediary path between i and j
 intermediaryPath(i, j, k)
 
-    # base case. directly connected, then no intermediary path
-    if G[i,j] = phi return ()
+    # base case. adjacent, then no intermediary path
+    if G[i,j] == 1 return ()
     
-    # not directly connected, then we pick an intermediary vertex
+    # not adjacent, then we pick an intermediary vertex
     q = M^k[i,j]
     
     # recursively construct intermediary paths from i to q, and from q to j.
     return intermediaryPath(i, q, k/2) + (q) + intermediaryPath(q, j, k/2)
 
-# input: k power of 2; i & j
-# output: path from i to j
+# input: k power of 2, at least n-1; i & j
+# output: a path from i to j
 main(i, j, k)
 
     # trivial path
     if i == j return (i)
 
-    # directly connected
+    # adjacent
     if G[i,j] == 1:
         return (i, j)
 
-    # if not directly connected, and no intermediary vertex exists,
+    # if not adjacent, and no intermediary vertex exists,
     # then no path exists
     if M^k[i,j] == Nil return Nil
 
