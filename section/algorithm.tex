@@ -50,9 +50,9 @@ Follows immediately since ordering is preserved by the previous theorem.
 
 The matrix $A'$ is the adjacency matrix of a given digraph $G$ whereby $A'[i,j] = 1$ if and only if $(v_i, v_j) \in E(G)$. A useful property of adjacency matrices is that $(A')^k[i,j]$ is exactly the number of distinct walks of length $k$ from vertex $v_i$ to vertex $v_j$. 
 
-Consider a relation composition $G^k$ where $a G^k b$ iff there is a walk of length-k from $a$ to $b$ in $G$. Observe the union $G^0 \cup G^1 \cup \dots \cup G^{|V(G)|-1}$ is a directed graph $(G \cup G^0)^{|V(G)|-1}$ in which an arrow exists whenever there is a walk of length at most $k$ in $G$. See \cite{discreteHandbook} for a background. A \textit{Boolean Vector} is a vector whose entries are zeros or ones. Given two boolean vectors $v$ and $w$, their \textit{Boolean Dot Product} is $v \odot w = \bigvee_k \big ( v[k] \wedge w[k] \big )$. Given two boolean matrices $A$ and $B$, their \textit{Matrix Boolean Product} is $A \odot B = C$ whereby $C[i,j]$ is the boolean product of the ith row of $A$ and the jth column of $B$. We denote $A^{[k]} = \underbrace{A \odot \dots \odot A}_{k \text{ times}}$. Let $A = A' + I_n$ via entry-wise boolean addition, corresponding to $G \cup G^0$.
+Consider a relation composition $G^k$ where $a G^k b$ iff there is a walk of length-k from $a$ to $b$ in $G$. Observe the union $G^0 \cup G^1 \cup \dots \cup G^{|V(G)|-1}$ is a directed graph $(G \cup G^0)^{|V(G)|-1}$ in which an arrow exists whenever there is a walk of length at most $k$ in $G$. See \cite{discreteHandbook} for a background. A \textit{Boolean Vector} is a vector whose entries are zeros or ones. Given two boolean vectors $v$ and $w$, their \textit{Boolean Dot Product} is $v \odot w = \bigvee_k \big ( v[k] \wedge w[k] \big )$. Given two boolean matrices $A$ and $B$, their \textit{Matrix Boolean Product} is $A \odot B = C$ whereby $C[i,j]$ is the boolean product of the ith row of $A$ and the jth column of $B$. We denote $A^{[k]} = \underbrace{A \odot \dots \odot A}_{k \text{ times}}$.
 
-\textbf{Theorem.} $A^{[k]}[a,b] = 1$ iff there is a walk of length at most $k$ from $a$ to $b$ in $G$.
+\textbf{Theorem.} Let $A = A' + I_n$ via entry-wise boolean addition, corresponding to $G \cup G^0$. $A^{[k]}[a,b] = 1$ iff there is a walk of length at most $k$ from $a$ to $b$ in $G$.
 
 \textit{Proof.} We proceed by induction on $k$.
 
@@ -77,12 +77,8 @@ $$
 
 \textbf{Corollary.} For any $k < n-1$, if $A^{[k]}[i,j] = 0$, then it is not sufficent to exclude the existence of a path from $i$ to $j$.
 
-\textbf{Definition.} Let $G$ be a digraph with adjacency matrix $A'$. Let $A = A' + I_n$. The intermediary matrix $M^{2^k}$ for $k \geq 1$ is defined as follows: %corresponding to $A^{[1]}, A^{[2]}, A^{[4]}, \dots, A^{[2^m]}$, where $A^{[1]}$ corresponds to $G \cup G^0$ %and $A^{[2k]} = A^{[k]} \odot A^{[k]}$.
+\textbf{Definition.} Let $G$ be a digraph with adjacency matrix $A'$. Let $A = A' + I_n$. The intermediary matrix $M^{2^k}$ for $k \geq 1$ is defined as follows:
 \begin{align*}
-% M^1[i,j] &= \begin{cases} 
-%     \phi & A^{[1]}[i,j]=1, \; i \neq j \\
-%       Nil & \text{otherwise}
-%     \end{cases} \\
 M^{2^k}[i,j] &= \begin{cases} 
     q & A^{[2^{k-1}]}[i,q] = 1 = A^{[2^{k-1}]}[q,j], \; i,j,q \text{ distinct,} \\
       Nil & \text{otherwise.}
@@ -98,48 +94,49 @@ M^{2^k}[i,j] &= \begin{cases}
 a constructed path from vertex $i$ to $j$ is returned.
 
 \begin{verbatim}
-# input:  k, power of 2; i & j, M^k[i,j] != Nil
-# output: intermediary path between i and j
-intermediaryPath(i, j, k)
+# input:  2^k; i & j, M^2^k[i,j] != Nil
+# output: intermediary walk between i and j
+intermediaryWalk(i, j, 2^k)
 
-    # base case. adjacent, then no intermediary path
-    if G[i,j] == 1 return ()
+    # base case. adjacent, then empty intermediary walk
+    if A'[i,j] == 1 return ()
     
     # not adjacent, then we pick an intermediary vertex
-    q = M^k[i,j]
+    q = M^2^k[i,j]
     
-    # recursively construct intermediary paths from i to q, and from q to j.
-    return intermediaryPath(i, q, k/2) + (q) + intermediaryPath(q, j, k/2)
+    # recursively construct intermediary walks from i to q, and from q to j.
+    return intermediaryWalk(i, q, 2^k-1) + (q) + intermediaryWalk(q, j, 2^k-1)
 
-# input: k power of 2, at least n-1; i & j
-# output: a path from i to j
-main(i, j, k)
+# input: i & j; adj matrix A' of G
+# output: a walk from i to j
+main(i, j, G)
+    declare 2^k >= n-1
 
     # trivial path
     if i == j return (i)
 
     # adjacent
-    if G[i,j] == 1:
+    if A'[i,j] == 1:
         return (i, j)
 
     # if not adjacent, and no intermediary vertex exists,
     # then no path exists
-    if M^k[i,j] == Nil return Nil
+    if M^2^k[i,j] == Nil return Nil
 
     # if an intermediary vertex exists,
-    # then so does some intermediate path
-    return (i) + intermediaryPath(i, j, k) + (j)
+    # then so does some intermediate walk
+    return (i) + intermediaryWalk(i, j, 2^k) + (j)
 \end{verbatim}
 
-\textit{Correctness Proof.} By strong induction on the length of paths.
+\textbf{Lemma.} Correctness of $intermediaryWalk$.
 
-For the base case where $|p| = 1$, clearly $i = j$ and we get the right answer.
+Fix an arbitrary graph $G$ with vertices $i$ and $j$. We show for all powers of two $2^k$, if there is a walk of length at most $2^k$, the function $intermediaryWalk(i,j,2^k)$ constructs a correct intermediary walk. The proof is by induction on $k$, the power of walk length.
 
-For the base case where $|p| = 2$, clearly $p = (i,j)$, and either $i$ is directly connected to $j$, or $M^1[i,j] = Nil$.
+Base case $k = 0$. Possible walks are of length at most $2^0 = 1$. If $i$ and $j$ are adjacent then $()$ is returned. If not adjacent, then the existing intermediary walk is of length $1$. Call it $(q)$ and note $q = M^{2^k}[i,j]$. Since the intermediary walk is of length $1$, it follows $A'[i,q] = A'[q,j] = 1$. Thereby $intermediaryWalk(i,q,2^{-1}) = intermediaryWalk(q,j,2^{-1}) = ()$, and the resulting walk is $(q)$.
 
-Consider a path $p$ such that $|p| = m > 2$ and denote $p = (v_1, v_2, \dots, v_m)$. Assume the algorithm is correct for any path $p$ where $|p| < m$.
+Induction step $k > 0$. Assume the statement is true for $k' = k-1$. Then $intermediaryWalk(i, j, 2^{k-1})$ and $intermediaryWalk(q, j, 2^{k-1})$ produce correct walks, and so is the walk $intermediaryWalk(i,j,2^k)$.
 
-For the case of $v_1 \neq v_m$ and $M^k[i,j] \neq Nil$, we know there is an intermediary vertex $q$, with a path $p_0$ from $v_1$ to $q$, and a path $p_1$ from $q$ to $v_m$. Clearly $|p_0| < k$ and $|p_1| < k$, and by induction hypothesis, paths $p_0$ and $p_1$ produced are correct. It follows the path $(v_1) + p_0 + (q) + p_1 + (v_m)$ is correct from $i$ to $j$ as intended.
+\textbf{Corollary.} Correctness of $main$.
 
 
 \subsection{Dynamic Update}
