@@ -29,22 +29,28 @@ In our implementation, we construct graph (4) immediately from graph (1). Detail
     Figure 4: Vertex uncertainty to edge weight
 \end{center}
 
+\textbf{Definition (Weight-backward Transformation).} Suppose we are given a digraph $G$ where vertices are labeled by real numbers with $L$, and $L(v = 0)$ for every vertex $v$ with no inward edge. Construct a digraph $G'$ with edge labeling $L'$ as follows: for every $v \in V(G)$, we label inward edges $e$ by $L'(e) = L(v)$.
 
-\textbf{Definition.} \textit{weight-backward} transformation. Suppose we are given a graph $G$ where the ith vertex is labeled with expectation $Ex[X_i]$. Construct a digraph $G'$ by labeling the edges of $G$ as follows: for every $v_i \in V(G)$, we label an edge $(v_k, v_i)$ by $Ex[v_i]$.
+\textbf{Fact.} If $w(v) = 0$ whenever $v$ has no inward edge in $G$, then the weight of path $p$ in $G$ defined as $W(p) = \sum_{v \in p} w(v)$, is equal to $W'(p) = \sum_{e \in p}w(e)$ in $G'$.
 
-\textbf{Theorem.} If $G$ is transformed to $G'$ by \textit{weight-backward}, then a path $p$ is of expectation $w$ in $G$ iff it is of expectation $w$ in $G'$.
+% \textbf{Definition (Weight-backward Transformation).} Suppose we are given a digraph $G$ where the ith vertex is labeled with expectation $Ex[X_i]$. Construct a digraph $G'$ by labeling the edges of $G$ as follows: for every $v_i \in V(G)$, we label an edge $(v_k, v_i)$ by $Ex[v_i]$.
 
-\textit{Proof.} Recall by definition $Ex[X_{root}] = 0$. For the base case where $|p| = 1$, total expectation $Ex[X] = 0$ in $G$. In $G'$, $p$ won't have any edges, so $Ex[X] = 0$ in $G'$ as well.
+\textbf{Corollary.} If $G$ is transformed to $G'$ by \textit{weight-backward}, then a path $p$ is of expectation $w$ in $G$ iff it is of expectation $w$ in $G'$.
 
-Assume the statement holds for $k \geq 1$, and consider an arbitrary path $p$ where $|p| = k+1$. Call $p = (v_1, \dots, v_{k+1})$. By hypothesis $\sum_{i=1}^k Ex[X_i] = \sum_{i=2}^k Ex[X_{(v_{i-1}, v_{i})}]$. By definition we have $Ex[X_{k+1}] = Ex[X_{(v_k, v_{k+1})}]$. Hence the inductive step follows as
-\begin{align*}
-\left ( \sum_{i=1}^k Ex[X_i] \right ) + Ex[X_{k+1}] &= \left ( \sum_{i=2}^k Ex[X_{(v_{i-1}, v_{i})}] \right ) + Ex[X_{(v_k, v_{k+1})}] \\
-\sum_{i=1}^{k+1} Ex[X_i] &= \sum_{i=2}^{k+1} Ex[X_{(v_{i-1}, v_{i})}]
-\end{align*}
+\textit{Proof.} Clear by linearity if expectation.
+
+% \textit{Proof.} Recall by definition $Ex[X_{root}] = 0$. For the base case where $|p| = 1$, total expectation $Ex[X] = 0$ in $G$. In $G'$, $p$ won't have any edges, so $Ex[X] = 0$ in $G'$ as well.
+
+% Assume the statement holds for $k \geq 1$, and consider an arbitrary path $p$ where $|p| = k+1$. Call $p = (v_1, \dots, v_{k+1})$. By hypothesis $\sum_{i=1}^k Ex[X_i] = \sum_{i=2}^k Ex[X_{(v_{i-1}, v_{i})}]$. By definition we have $Ex[X_{k+1}] = Ex[X_{(v_k, v_{k+1})}]$. Hence the inductive step follows as
+% \begin{align*}
+% \left ( \sum_{i=1}^k Ex[X_i] \right ) + Ex[X_{k+1}] &= \left ( \sum_{i=2}^k Ex[X_{(v_{i-1}, v_{i})}] \right ) + Ex[X_{(v_k, v_{k+1})}] \\
+% \sum_{i=1}^{k+1} Ex[X_i] &= \sum_{i=2}^{k+1} Ex[X_{(v_{i-1}, v_{i})}]
+% \end{align*}
 
 \textbf{Corollary.} For a \textit{directed graph} $G$ and a path $p$, $p$ is minimal or maximal in $G$ if and only if $p$ is minimal or maximal in transformed $G'$.
 
-Follows immediately since ordering is preserved by the previous theorem.
+\textit{Proof.} Clear since ordering is preserved by the previous theorem.
+
 
 \subsection{Neutral Path} \label{Neutral Path}
 
@@ -85,15 +91,18 @@ $$
   \end{cases}
 \end{align*}
 
-\textbf{Comment.} The $\min$ is for uniquely choosing a vertex. Any function which selects an element from a subset is valid.
+\textbf{Comment.} The minimum is for uniquely choosing a vertex. Any function which selects an element from a subset is valid.
 
-\textbf{Lemma.} $M^{2^k}[i,j] \neq Nil \longleftrightarrow \text{ there is an ij-walk of length at most } 2^k$
+\textbf{Lemma.} $M^{2^k}[i,j] \neq Nil$ if and only if there is an $ij$-walk of length at most $2^k$.
 
 \textit{Proof.} $(\rightarrow)$ Trivial.
 
-$(\leftarrow)$ Given an ij-walk of length $n \leq 2^k$. If $n$ is even, pick $q = v_{n/2}$ and observe the iq-walk is of length $n/2 - 1 \leq 2^{k-1}$. If $n$ is odd, pick $q = v_{\frac{n+1}{2}}$ and observe the qj-walk is of length $\frac{n+1}{2} - 1 \leq 2^{k-1}$.
+$(\leftarrow)$ Given an $ij$-walk of length $n \leq 2^k$. If $n$ is even, pick $q = v_{n/2}$ and observe the iq-walk is of length $n/2 - 1 \leq 2^{k-1}$. If $n$ is odd, pick $q = v_{\frac{n+1}{2}}$ and observe the qj-walk is of length $\frac{n+1}{2} - 1 \leq 2^{k-1}$.
 
-\textbf{Definition.} An intermediary walk between $i$ and $j$ is
+\textbf{Definition (Intermediary Walk).} An intermediary walk between $i$ and $j$ is a sequence $(u_1, \dots, u_m)$ such that $i \rightarrow u_1 \rightarrow u_2 \rightarrow \dots \rightarrow u_m \rightarrow j$.
+
+\textbf{Definition.} If $i \rightarrow j$, we also call the empty sequence $()$ an \textit{intermediary walk}.
+
 $$
   IW(i,j,2^k) = \begin{cases} 
     () & \text{if } i \rightarrow j \\
@@ -101,7 +110,7 @@ $$
        \end{cases}
 $$
 
-\textbf{Definition.} An ij-walk is a walk whose first vertex is $i$ and last vertex is $j$.
+\textbf{Definition.} An $ij$-walk is a walk whose first vertex is $i$ and last vertex is $j$.
 
 \textbf{Algorithm.} Given:
 \begin{itemize}
@@ -145,15 +154,15 @@ main(i, j, A')
     return (i) + intermediaryWalk(i, j, 2^k) + (j)
 \end{verbatim}
 
-\textbf{Lemma.} Correctness of $intermediaryWalk$.
+\textbf{Lemma.} Correctness of $intermediaryWalk$ algorithm.
 
-Fix an arbitrary graph $G$ with vertices $i$ and $j$. We show for all powers of two $2^k$, if there is an $ij-walk$ of length at most $2^k$, the function $intermediaryWalk(i,j,2^k)$ constructs an intermediary walk between $i$ and $j$. The proof is by induction on $k$, the power of walk length.
+Fix an arbitrary graph $G$ with vertices $i$ and $j$. We show for all powers of two $2^k$, if there is an $ij$-walk of length at most $2^k$, the function $intermediaryWalk(i,j,2^k)$ constructs an intermediary walk between $i$ and $j$. The proof is by induction on $k$, the power of walk length.
 
 Base case $k = 0$. Possible walks are of length at most $2^0 = 1$. If $i$ and $j$ are adjacent then empty walk $()$ is returned. If not adjacent, then the existing intermediary walk is of length $1$. Call it $(q)$ and note $q = M^{2^k}[i,j]$. Since the intermediary walk is of length $1$, it follows $A'[i,q] = A'[q,j] = 1$, implying $i \rightarrow q$ and $q \rightarrow j$.
 
-Induction step. Assume the statement is true for $k \geq 0$. By hypothesis we have an $ij-walk$ of length $2^{k+1}$. By induction hypothesis, \verb#intermediaryWalk(i, q, 2^k)# and \verb#intermediaryWalk(q, j, 2^k)# return intermediary walks between $i$ and $q$, and between $q$ and $j$, respectively. Note we are also given that $i$ is adjacent to the first vertex of \verb#intermediaryWalk(i,q,2^k)#, and the last vertex of \verb#intermediaryWalk(q, j, 2^k)# is adjacent to $j$. Therefore, $intermediaryWalk(i,j,2^k)$ returns an intermediary walk between $i$ and $j$.
+Induction step. Assume the statement is true for $k \geq 0$. By hypothesis we have an $ij$-walk of length $2^{k+1}$. By induction hypothesis, \verb#intermediaryWalk(i, q, 2^k)# and \verb#intermediaryWalk(q, j, 2^k)# return intermediary walks between $i$ and $q$, and between $q$ and $j$, respectively. Note we are also given that $i$ is adjacent to the first vertex of \verb#intermediaryWalk(i,q,2^k)#, and the last vertex of \verb#intermediaryWalk(q, j, 2^k)# is adjacent to $j$. Therefore, $intermediaryWalk(i,j,2^k)$ returns an intermediary walk between $i$ and $j$.
 
-\textbf{Corollary.} Correctness of $main$.
+\textbf{Corollary.} Correctness of $main$ algorithm.
 
 
 \subsection{Dynamic Update}
