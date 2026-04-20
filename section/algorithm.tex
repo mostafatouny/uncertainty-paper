@@ -31,7 +31,7 @@ In our implementation, we construct graph (4) immediately from graph (1). Detail
 
 \textbf{Definition (Weight-backward Transformation).} Suppose we are given a digraph $G$ where vertices are labeled by real numbers with $L$, and $L(v = 0)$ for every vertex $v$ with no inward edge. Construct a digraph $G'$ with edge labeling $L'$ as follows: for every $v \in V(G)$, we label inward edges $e$ by $L'(e) = L(v)$.
 
-\textbf{Fact.} If $w(v) = 0$ whenever $v$ has no inward edge in $G$, then the weight of path $p$ in $G$ defined as $W(p) = \sum_{v \in p} w(v)$, is equal to $W'(p) = \sum_{e \in p}w(e)$ in $G'$.
+\textbf{Fact.} If $w(v) = 0$ whenever $v$ has no inward edge in $G$, then the weight of path $p$ in $G$ defined as $W(p) = \sum_{v \in p} w(v)$, is equal to $W'(p) = \sum\limits_{e \in p}w(e)$ in $G'$.
 
 % \textbf{Definition (Weight-backward Transformation).} Suppose we are given a digraph $G$ where the ith vertex is labeled with expectation $Ex[X_i]$. Construct a digraph $G'$ by labeling the edges of $G$ as follows: for every $v_i \in V(G)$, we label an edge $(v_k, v_i)$ by $Ex[v_i]$.
 
@@ -170,18 +170,18 @@ Induction step. Assume the statement is true for $k \geq 0$. By hypothesis we ha
 \textbf{Weights}
 
 \begin{center}
-    \input{figures/dynamic-0}
+    \input{figures/dynamic-0} \\
     Figure 5: Dynamic update by vertices weights
 \end{center}
 
-\textbf{Proposition.} If no weight updates occur to the intersection of the set of fathers / predecessors of $d_j$ and the set of children of $s_i$, then the optimality of $s_i-d_j$ paths are preserved.
+\textbf{Proposition.} Given a digraph $G$ with fixed vertices $s$ and $d$. Let $L$ and $L'$ be two labels of vertices of $G$. Assume for any $v \in V - \{s,d\}$ where a $sv$-path and $vd$-path do exist, we have $L'(v) = L(v)$, then the shortest $sd$-path under $L$ is also a shortest-path under $L'$.
 
-\textit{Proof.} Let $\Delta = ((w'(s_i) - w(s_i) + (w'(d_i) - w(d_i))$ be the net weight change of $s_i$ and $d_j$. Then for any path $p_i$, the new weight is $w'(p_i) = w(p_i) + \Delta$. It follows a minimal path weight $p_k$ is preserved. Indeed, if we have real numbers $a_1, a_2, \dots, a_k$ with minimum $a_k$, then $(a_k + \Delta)$ would be a minimum of $(a_1 + \Delta), \dots, (a_k + \Delta)$.
+%\textit{Proof.} Let $\Delta = ((L'(s) - L(s) + (L'(d) - L(d))$ be the net weight change of vertices $s$ and $d$. Then for any path $p_i$, its new weight is $L'(p_i) = L(p_i) + \Delta$. It follows a minimal-weight path $p_k$ is preserved. Indeed, if we have real numbers $a_1, a_2, \dots, a_k$ with minimum $a_k$, then $(a_k + \Delta)$ would be a minimum of $(a_1 + \Delta), \dots, (a_k + \Delta)$.
 
 \textbf{Procedure.}
 \begin{itemize}
     \item Memoize all pairs in the left subgraph and right subgraph through the previously computed distances and predecessors matrices.
-    \item Call any all pairs shortest path algorithm.
+    \item Call any \textit{all-pairs-shortest-path} algorithm.
 \end{itemize}
 
 \begin{verbatim}
