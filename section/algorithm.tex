@@ -178,6 +178,42 @@ Induction step. Assume the statement is true for $k \geq 0$. By hypothesis we ha
 
 %\textit{Proof.} Let $\Delta = ((L'(s) - L(s) + (L'(d) - L(d))$ be the net weight change of vertices $s$ and $d$. Then for any path $p_i$, its new weight is $L'(p_i) = L(p_i) + \Delta$. It follows a minimal-weight path $p_k$ is preserved. Indeed, if we have real numbers $a_1, a_2, \dots, a_k$ with minimum $a_k$, then $(a_k + \Delta)$ would be a minimum of $(a_1 + \Delta), \dots, (a_k + \Delta)$.
 
+\textbf{Memoization.} Memoization is an optimization technique used primarily to speed up computer programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again. Given a function $f: X \to Y$ and a cache $C: X \to Y$, memoization transforms $f$ into a function $f_{\text{memo}}$ such that:
+\begin{align*}
+  f_{\text{memo}}(x) = 
+  \begin{cases} 
+  C(x) & \text{if } x \in \text{dom}(C) \\
+  f(x) & \text{otherwise, with } C(x) \leftarrow f(x)
+  \end{cases}
+\end{align*}
+
+\textbf{Memoization Example.} Factorial function.
+\begin{verbatim}
+cache = {}
+
+def factorial_memo(n):
+    # check cache - O(1)
+    if n in cache:
+        return cache[n]
+    
+    # base case
+    if n == 0:
+        result = 1
+    else:
+        # recursive step
+        result = n * factorial_memo(n - 1)
+    
+    # store in cache
+    cache[n] = result
+    return result
+\end{verbatim}
+
+Memoization saves computational resources by eliminating redundant calculations through caching. It stores intermediate results in a lookup table. Consequently, any subsequent request for $f_{memo}(k)$ where $f_{memo}(k)$ was an intermediate calculation becomes an instantaneous $O(1)$ retrieval. This optimization is particularly powerful in scenarios requiring repeated calculations of overlapping subproblems, trading space for time.
+
+\textbf{Optimal Substructure.} The optimal substructure property of shortest paths states that if $p = \langle v_1, v_2, \dots, v_k \rangle$ is a shortest path from $v_1$ to $v_k$, then for any indices $i$ and $j$ where $1 \le i \le j \le k$, the $ij-$path $= \langle v_i, v_{i+1}, \dots, v_j \rangle$ is a shortest path from $v_i$ to $v_j$. It guarantees that the global optimum can be constructed by combining locally optimal solutions, and thereby validating the memoization strategy in computing shortest-paths.
+
+\textbf{Memoization for dynamic update.} In our context of dynamic graph update, memoization is used as the optimization mechanism which mitigates the computational overhead of recomputing the whole graph. The distance and predecessor matrices, associated with the shortest-path algorithm, of subgraphs where the optimal $vd$-path is preserved, are memoized. This approach leverages the mathematical property that shortest paths within unchanged substructures are preserved.
+
 \textbf{Procedure.}
 \begin{itemize}
     \item Memoize all pairs in the left subgraph and right subgraph through the previously computed distances and predecessors matrices.
@@ -225,7 +261,7 @@ def dynamicAllPairsShortestPath(updatedGraph, updatedVertices, preDistances, pre
 
 \textbf{Corollary.} Procedure correctness.
 
-\textit{Proof.} We already know the correctness of memoization from the previous \textit{lemma}. Given a correct memoization, the correctness of the all pairs shortest path is given, since it is used as a black-box subroutine. $\blacksquare$
+\textit{Proof.} The correctness of memoization is already known. Given a correct memoization, the correctness of the all pairs shortest path is given, since it is used as a black-box subroutine. $\blacksquare$
 
 
 \textbf{Diameter}
