@@ -174,7 +174,7 @@ Induction step. Assume the statement is true for $k \geq 0$. By hypothesis we ha
     Figure 5: Dynamic update by vertices weights
 \end{center}
 
-\textbf{Proposition.} Given a digraph $G$ with fixed vertices $s$ and $d$. Let $L$ and $L'$ be two labels of vertices of $G$. Assume for any $v \in V - \{s,d\}$ where a $sv$-path and $vd$-path do exist, we have $L'(v) = L(v)$, then the shortest $sd$-path under $L$ is also a shortest-path under $L'$.
+\textbf{Remark.} Given a digraph $G$ with fixed vertices $s$ and $d$. Let $L$ and $L'$ be two labels of vertices of $G$. Assume for any $v \in V - \{s,d\}$ where a $sv$-path and $vd$-path do exist, we have $L'(v) = L(v)$, then the shortest $sd$-path under $L$ is also a shortest-path under $L'$.
 
 %\textit{Proof.} Let $\Delta = ((L'(s) - L(s) + (L'(d) - L(d))$ be the net weight change of vertices $s$ and $d$. Then for any path $p_i$, its new weight is $L'(p_i) = L(p_i) + \Delta$. It follows a minimal-weight path $p_k$ is preserved. Indeed, if we have real numbers $a_1, a_2, \dots, a_k$ with minimum $a_k$, then $(a_k + \Delta)$ would be a minimum of $(a_1 + \Delta), \dots, (a_k + \Delta)$.
 
@@ -212,7 +212,17 @@ Memoization saves computational resources by eliminating redundant calculations 
 
 \textbf{Optimal Substructure.} The optimal substructure property of shortest paths states that if $p = \langle v_1, v_2, \dots, v_k \rangle$ is a shortest path from $v_1$ to $v_k$, then for any indices $i$ and $j$ where $1 \le i \le j \le k$, the $ij-$path $= \langle v_i, v_{i+1}, \dots, v_j \rangle$ is a shortest path from $v_i$ to $v_j$. It guarantees that the global optimum can be constructed by combining locally optimal solutions, and thereby validating the memoization strategy in computing shortest-paths.
 
+\textbf{Fact.} Let $G = (V,E)$ be a directed graph equipped with edge weights $L$. Suppose $V$ is partitioned to $V = \cup_{i=1}^k V_i$ into disjoint vertex sets such that each induced subgraph $G_i$ satisfies the path containment property:
+
+$$
+\forall i \in {1,\dots,k}, \forall u,v \in V_i, \text{every $uv$-path in $G$ is contained in $G_i$}
+$$
+
+Let $W \subseteq {1, \dots, k}$ denote the set of indices of components with correct edge weights. Define a memoization that caches subgraphs of $W$. Then, a shortest path algorithm produces the correct result.
+
 \textbf{Memoization for dynamic update.} In our context of dynamic graph update, memoization is used as the optimization mechanism which mitigates the computational overhead of recomputing the whole graph. The distance and predecessor matrices, associated with the shortest-path algorithm, of subgraphs where the optimal $vd$-path is preserved, are memoized. This approach leverages the mathematical property that shortest paths within unchanged substructures are preserved.
+
+\textbf{Corollary.} Given a graph with three components, satisfying the containment property. We call two of them a \textit{left-subgraph} and \textit{right-subgraph}. If no update occurs to both of them, then if we cache their results, a shortest-path algorithm produces the correct answer.
 
 \textbf{Procedure.}
 \begin{itemize}
@@ -259,9 +269,7 @@ def dynamicAllPairsShortestPath(updatedGraph, updatedVertices, preDistances, pre
     return AllPairsShortestPath(updatedGraph, distMemo, predMemo)
 \end{verbatim}
 
-\textbf{Corollary.} Procedure correctness.
-
-\textit{Proof.} The correctness of memoization is already known. Given a correct memoization, the correctness of the all pairs shortest path is given, since it is used as a black-box subroutine. $\blacksquare$
+correctness of memoization is already known. Given a correct memoization, the correctness of the all pairs shortest path is given, since it is used as a black-box subroutine.
 
 
 \textbf{Diameter}
